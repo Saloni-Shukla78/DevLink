@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const validator = require('validator');
 
 const userSchema = mongoose.Schema({
     firstName:{
@@ -15,10 +16,20 @@ const userSchema = mongoose.Schema({
         required:true,
         unique:true,
         trim:true,
+        validate(value){
+            if(!validator.isEmail(value)){
+                throw new Error("Email is not valid.");
+            }
+        }
     },
     password:{
         type:String,
         required:true,
+        validate(value){
+            if(!validator.isStrongPassword(value)){
+                throw new Error("Password is not enough strong.")
+            }
+        }
     },
     headline:{
         type:String,
@@ -38,6 +49,11 @@ const userSchema = mongoose.Schema({
     photoUrl:{
         type:String,
         default:"https://api.dicebear.com/9.x/icons/svg?icon=laptop",
+        validate(value){
+            if(!validator.isURL(value)){
+                throw new Error("Photo URL is not valid.");
+            }
+        }
     },
     about:{
         type:String,
