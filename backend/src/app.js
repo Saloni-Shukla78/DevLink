@@ -6,7 +6,9 @@ const validator = require("validator");
 const bcrypt = require("bcrypt");
 const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
+require("dotenv").config();
 const app = express();
+
 app.use(express.json());
 app.use(cookieParser());
 
@@ -50,7 +52,7 @@ app.post("/login", async(req, res) => {
 
     if (isPasswordValid) {
       //assign jwt token
-      const token =await jwt.sign({ _id: user._id }, "DEV@LINK987");
+      const token =await jwt.sign({ _id: user._id }, process.env.JWT_SECRET);
 
       //send cookie
       res.cookie("token", token);
@@ -81,7 +83,10 @@ app.get("/profile", async (req, res) => {
   try {
     const cookies = req.cookies;
     const { token } = cookies;
-    const decodedMessage = await jwt.verify(token,"DEV@LINK987");
+    if(!token){
+      throw new Error('Token Invalid.');
+    }
+    const decodedMessage = await jwt.verify(token,process.env.JWT_SECRET);
     const id=decodedMessage._id;
     const user=await User.findById(id);
     res.status(200).send(user);
