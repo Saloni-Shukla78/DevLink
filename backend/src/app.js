@@ -1,22 +1,30 @@
 const express = require("express");
 const { connectDB } = require("./config/database");
 const User = require("./models/user");
-const {validationSignup} = require("./utils/validation");
+const { validationSignup } = require("./utils/validation");
 const validator = require("validator");
-const bcrypt=require('bcrypt');
+const bcrypt = require("bcrypt");
+const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
 const app = express();
 app.use(express.json());
+app.use(cookieParser());
 
 app.post("/signup", async (req, res) => {
   try {
     ///Validation of incoming data...
     validationSignup(req);
-     const {firstName, lastName, email ,password} = req.body;
-   
+    const { firstName, lastName, email, password } = req.body;
+
     //Encrypt the password...
-    
-    const hashPassword= await bcrypt.hash(password,10);
-    const user = new User({firstName, lastName, email ,password:hashPassword});
+
+    const hashPassword = await bcrypt.hash(password, 10);
+    const user = new User({
+      firstName,
+      lastName,
+      email,
+      password: hashPassword,
+    });
     await user.save();
     res.status(200).send("Data posted successfully.");
   } catch (err) {
@@ -24,27 +32,35 @@ app.post("/signup", async (req, res) => {
   }
 });
 
-app.post("/login",async(req,res)=>{
-    try{
-        const {email ,password}= req.body;
-        if(!validator.isEmail(email)){
-            throw new Error("Email is not valid");
-        }
-        const user =await User.findOne({email:email});
-        if(!user){
-            throw new Error("Email is not exist.")
-        }
-        const isPasswordValid = await bcrypt.compare(password,user.password);
-
-        if(isPasswordValid){
-            res.status(200).send("Login Successfully !!");
-        }else{
-            throw new Error("Password does not match")
-        }
-    }catch(err){
-        res.status(400).send("Error : " + err.msg);
-
+app.post("/login", async(req, res) => {
+  try {
+    //validate email
+    const { email, password } = req.body;
+    if (!validator.isEmail(email)) {
+      throw new Error("Email is not valid");
     }
+    //find user
+    const user = await User.findOne({ email: email });
+    if (!user) {
+      throw new Error("Invalid credentials");
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    //validate password
+
+    if (isPasswordValid) {
+      //assign jwt token
+      const token =await jwt.sign({ _id: user._id }, "DEV@LINK987");
+
+      //send cookie
+      res.cookie("token", token);
+      res.status(200).send("Login Successfully !!");
+    } else {
+      throw new Error("Invalid credentials");
+    }
+  } catch (err) {
+    res.status(400).send("Error : " + err.msg);
+  }
 });
 
 app.get("/user", async (req, res) => {
@@ -58,6 +74,19 @@ app.get("/user", async (req, res) => {
     }
   } catch (err) {
     res.status(400).send("Something went wrong.");
+  }
+});
+
+app.get("/profile", async (req, res) => {
+  try {
+    const cookies = req.cookies;
+    const { token } = cookies;
+    const decodedMessage = await jwt.verify(token,"DEV@LINK987");
+    const id=decodedMessage._id;
+    const user=await User.findById(id);
+    res.status(200).send(user);
+  } catch (err) {
+    res.status(400).send("Error" + err);
   }
 });
 
