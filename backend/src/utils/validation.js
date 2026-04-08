@@ -11,4 +11,13 @@ const validationSignup = (req) => {
   }
 };
 
-module.exports ={validationSignup}
+const validationEditProfile =(req)=>{
+  const allowedFields =["firstName","lastName","headline","age","gender","skills","photoUrl","about"];
+  const isAllowedField=Object.keys(req.body).every((field)=> allowedFields.includes(field),
+);
+  if(!isAllowedField){
+    throw new Error("Invalid Updates.");
+  }
+}
+
+module.exports ={validationSignup, validationEditProfile}
