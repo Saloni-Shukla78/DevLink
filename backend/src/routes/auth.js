@@ -40,13 +40,13 @@ authRouter.post("/login",async(req,res)=>{
         }
         //compare password..
         const isPasswordValid= await user.passwordValidation(password);
-        if(!isPasswordValid){
+        if(isPasswordValid){
             //assign token
             const token=await user.getJWT();
-            res.cookie("Token : ",token);
+            res.cookie("token" , token);
             res.status(200).send("Login successsfully!");
         }else{
-            throw new Error("Invalid credentials.");
+            throw new Error("invalid credentials.");
         }
     }catch(err){
         res.status(400).send("Error : "+err.message);
