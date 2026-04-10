@@ -54,7 +54,6 @@ requestRouter.post("/request/:status/:userId", userAuth, async (req, res) => {
 requestRouter.post("/request/review/:status/:requestId",userAuth,async(req,res)=>{
   try{
     const loggedInUser=req.user;
-    console.log(loggedInUser)
     const {requestId,status}=req.params;
     const allowedStatus=["accepted" ,"rejected"];
     if(!allowedStatus.includes(status)){

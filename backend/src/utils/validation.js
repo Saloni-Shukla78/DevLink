@@ -13,6 +13,7 @@ const validationSignup = (req) => {
 
 const validationEditProfile =(req)=>{
   const allowedFields =["firstName","lastName","headline","age","gender","skills","photoUrl","about"];
+  //check all allowed field in array..
   const isAllowedField=Object.keys(req.body).every((field)=> allowedFields.includes(field),
 );
   if(!isAllowedField){
