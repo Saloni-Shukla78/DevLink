@@ -2,6 +2,7 @@ const express = require("express");
 const { userAuth } = require("../middleware/auth");
 const ConnectionRequest = require("../models/connectionRequest");
 const { connection } = require("mongoose");
+const User = require("../models/user");
 const userRouter = express.Router();
 
 const User_Safe_Data = [
@@ -18,6 +19,7 @@ const User_Safe_Data = [
 userRouter.get("/user/request/received", userAuth, async (req, res) => {
   try {
     const loggedInUser = req.user;
+    //find incoming requests..
     const receivedRequests = await ConnectionRequest.find({
       toUserId: loggedInUser._id,
       status: "interested",
@@ -42,6 +44,7 @@ userRouter.get("/user/request/received", userAuth, async (req, res) => {
 userRouter.get("/user/connections", userAuth, async (req, res) => {
   try {
     const loggedInUser = req.user;
+    // find connections who's status is accepted..
     const connections = await ConnectionRequest.find({
       $or: [{ fromUserId: loggedInUser._id }, { toUserId: loggedInUser._id }],
       status: "accepted",
@@ -72,5 +75,39 @@ userRouter.get("/user/connections", userAuth, async (req, res) => {
     });
   }
 });
+
+userRouter.get("/user/feed",userAuth,async(req,res)=>{
+  try{
+    const loggedInUser=req.user;
+    //find connection request..
+    const requestConnection=await ConnectionRequest.find({
+      $or:[{fromUserId:loggedInUser._id},
+        {toUserId:loggedInUser._id}
+      ]
+    }).select("fromUserId toUserId");
+    const hideUsersFromFeed=new Set();
+//add all connection and request into set..
+    requestConnection.forEach((req)=>{
+      hideUsersFromFeed.add(req.fromUserId.toString());
+      hideUsersFromFeed.add(req.toUserId.toString());
+  });
+///find user who's profile show on feed..
+  const showUsersOnFeed=await User.find({
+    $and:[
+     {_id: {$nin:Array.from(hideUsersFromFeed)}},
+     {_id:{$ne:loggedInUser._id}}
+    ]
+  }).select(User_Safe_Data)
+
+  res.status(200).json({
+     showUsersOnFeed
+    })
+
+  }catch(err){
+    res.status(400).json({
+      message:"Error : " + err.message,
+    })
+  }
+})
 
 module.exports = userRouter;
