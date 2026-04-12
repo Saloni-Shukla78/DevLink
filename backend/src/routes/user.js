@@ -58,11 +58,11 @@ userRouter.get("/user/connections", userAuth, async (req, res) => {
       });
     }
     const data = connections.map((row) => {
-        if(row.fromUserId._id.toString() === loggedInUser._id.toString()){
-            return row.toUserId;
-        }else{
-            return row.fromUserId;
-        }
+      if (row.fromUserId._id.toString() === loggedInUser._id.toString()) {
+        return row.toUserId;
+      } else {
+        return row.fromUserId;
+      }
     });
 
     res.status(200).json({
@@ -76,38 +76,42 @@ userRouter.get("/user/connections", userAuth, async (req, res) => {
   }
 });
 
-userRouter.get("/user/feed",userAuth,async(req,res)=>{
-  try{
-    const loggedInUser=req.user;
+userRouter.get("/user/feed", userAuth, async (req, res) => {
+  try {
+    const loggedInUser = req.user;
+    const page = parseInt(req.query.page) || 1;
+    let limit = parseInt(req.query.limit) || 10;
+    limit > 20 ? 20 : limit;
+    const skip = (page - 1)*limit;
     //find connection request..
-    const requestConnection=await ConnectionRequest.find({
-      $or:[{fromUserId:loggedInUser._id},
-        {toUserId:loggedInUser._id}
-      ]
+    const requestConnection = await ConnectionRequest.find({
+      $or: [{ fromUserId: loggedInUser._id }, { toUserId: loggedInUser._id }],
     }).select("fromUserId toUserId");
-    const hideUsersFromFeed=new Set();
-//add all connection and request into set..
-    requestConnection.forEach((req)=>{
+    const hideUsersFromFeed = new Set();
+    //add all connection and request into set..
+    requestConnection.forEach((req) => {
       hideUsersFromFeed.add(req.fromUserId.toString());
       hideUsersFromFeed.add(req.toUserId.toString());
-  });
-///find user who's profile show on feed..
-  const showUsersOnFeed=await User.find({
-    $and:[
-     {_id: {$nin:Array.from(hideUsersFromFeed)}},
-     {_id:{$ne:loggedInUser._id}}
-    ]
-  }).select(User_Safe_Data)
-
-  res.status(200).json({
-     showUsersOnFeed
+    });
+    ///find user who's profile show on feed..
+    const showUsersOnFeed = await User.find({
+      $and: [
+        { _id: { $nin: Array.from(hideUsersFromFeed) } },
+        { _id: { $ne: loggedInUser._id } },
+      ],
     })
+      .select(User_Safe_Data)
+      .skip(skip)
+      .limit(limit);
 
-  }catch(err){
+    res.status(200).json({
+      data: { showUsersOnFeed },
+    });
+  } catch (err) {
     res.status(400).json({
-      message:"Error : " + err.message,
-    })
+      message: "Error : " + err.message,
+    });
   }
-})
+});
 
 module.exports = userRouter;
