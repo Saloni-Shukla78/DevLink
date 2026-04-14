@@ -9,7 +9,7 @@ const Login = () => {
       const res = await axios.post("http://localhost:3000/login", {
         email:email,
         password:password,
-      });
+      }, {withCredentials:true});
     } catch (err) {
       console.log(err);
     }
