@@ -3,10 +3,11 @@ import React, { useEffect, useState } from "react";
 import { Base_url } from "../utils/constants";
 import { useDispatch, useSelector } from "react-redux";
 import { addFeed } from "../utils/feedSlice";
+import UserCard from "./UserCard";
 
 const Feed = () => {
   const [error, setError] = useState("");
-  const feed = useSelector((store) => store.feed);
+  const feed = useSelector((store) => store.feed?.showUsersOnFeed);
   const dispatch = useDispatch();
   const getFeed = async () => {
     if (feed) return;
@@ -16,13 +17,19 @@ const Feed = () => {
       });
       dispatch(addFeed(res?.data?.data));
     } catch (err) {
-      setError(err?.res?.data || "Something went wrong..");
+      setError(err?.response?.data || "Something went wrong..");
     }
   };
   useEffect(() => {
     getFeed();
   }, []);
-  return <div>Hello,</div>;
+  return (
+    feed && (
+      <div>
+        <UserCard user={feed[0]} />
+      </div>
+    )
+  );
 };
 
 export default Feed;
