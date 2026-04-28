@@ -4,6 +4,7 @@ import axios from "axios";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { Base_url } from "../utils/constants";
+import { addUser } from "../utils/userSlice";
 
 const EditProfile = (userData) => {
   const user = userData?.user;
@@ -15,17 +16,22 @@ const EditProfile = (userData) => {
   const [headline, setHeadline] = useState(user.headline);
   const [photoUrl, setPhotoUrl] = useState(user.photoUrl);
   const [skills, setSkills] = useState(user.skills);
+  const [showToast, setShowToast] = useState(false);
   const [error, setError] = useState("");
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const saveProfile = async () => {
-    try {
-      const res = await axios.patch(
+    try { 
+      const res = await axios.patch(  
         Base_url + "/profile/edit",
         { firstName, lastName, about, age, headline, skills, photoUrl, gender },
         { withCredentials: true },
       );
       dispatch(addUser(res?.data?.data));
+      setShowToast(true);
+      setTimeout(() => {
+        setShowToast(false);
+      }, 3000);
     } catch (err) {
       setError(err?.response?.data);
     }
@@ -81,7 +87,7 @@ const EditProfile = (userData) => {
               <option>female</option>
             </select>
           </div>
-          <div className="felx-1">
+          <div className="flex-1">
             <label className="label text-sm">Age:</label>
             <input
               type="number"
@@ -114,7 +120,7 @@ const EditProfile = (userData) => {
           onChange={(e) => setHeadline(e.target.value)}
         />
 
-        <label className="label text-sm">photoUrl:</label>
+        <label className="label text-sm">PhotoUrl:</label>
         <input
           type="text"
           value={photoUrl}
@@ -123,7 +129,7 @@ const EditProfile = (userData) => {
           placeholder="photoUrl"
           onChange={(e) => setPhotoUrl(e.target.value)}
         />
-        <label className="label text-sm">Skills:</label>
+        <label className="label text-sm">Skills:(Seperated by comma)</label>
         <input
           type="text"
           value={skills}
@@ -136,7 +142,15 @@ const EditProfile = (userData) => {
         <button className="btn btn-success mt-4" onClick={saveProfile}>
           Save Profile
         </button>
+        
       </fieldset>
+      {showToast && (
+          <div className="toast toast-top toast-center">
+            <div className="alert alert-success">
+              <span>Profile Updated successfully.</span>
+            </div>
+          </div>
+        )}
     </div>
   );
 };

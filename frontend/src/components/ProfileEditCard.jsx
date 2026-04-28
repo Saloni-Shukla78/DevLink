@@ -3,7 +3,7 @@ import React from 'react'
 const ProfileEditCard = ({user}) => {
     const {email, firstName, lastName,headline, about, photoUrl, gender, age ,skills} = user;
   return (
-   <div className="card bg-base-100 w-96 shadow-sm">
+   <div className="card bg-base-200 w-96 shadow-sm">
   <figure>
     <img
       src={photoUrl}
