@@ -2,22 +2,25 @@ import { useState } from "react";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { addUser } from "../utils/userSlice";
-import { useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Base_url } from "../utils/constants";
-
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error,setError]=useState("");
-  const dispatch=useDispatch();
-  const navigate=useNavigate();
+  const [error, setError] = useState("");
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const handleLogin = async () => {
     try {
-      const res = await axios.post(Base_url + "/login", {
-        email:email,
-        password:password,
-      }, {withCredentials:true});
+      const res = await axios.post(
+        Base_url + "/login",
+        {
+          email: email,
+          password: password,
+        },
+        { withCredentials: true },
+      );
       dispatch(addUser(res.data));
       navigate("/");
     } catch (err) {
@@ -27,7 +30,33 @@ const Login = () => {
 
   return (
     <div className="flex justify-center my-10">
-      <div className="card bg-base-400 w-96 shadow-md">
+      <fieldset className="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-6">
+        <legend className="fieldset-legend text-lg">Login</legend>
+
+        <label className="label text-sm">Email</label>
+        <input
+          type="email"
+          value={email}
+          name="email"
+          className="input"
+          placeholder="Email"
+          onChange={(e) => setEmail(e.target.value)}
+        />
+
+        <label className="label text-sm">Password</label>
+        <input
+          type="password"
+          value={password}
+          name="password"
+          className="input"
+          placeholder="Password"
+          onChange={(e) => setPassword(e.target.value)}
+        />
+        <p className="text-red-500">{error}</p>
+
+        <button className="btn btn-secondary mt-4" onClick={handleLogin}>Login</button>
+      </fieldset>
+      {/* <div className="card bg-base-400 w-96 shadow-md">
         <div className="card-body">
           <h2 className="card-title text-2xl justify-center">Login</h2>
           <fieldset className="fieldset">
@@ -59,7 +88,7 @@ const Login = () => {
             </button>
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };
