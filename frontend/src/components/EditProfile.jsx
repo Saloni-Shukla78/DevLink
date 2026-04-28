@@ -1,0 +1,121 @@
+import React from "react";
+import { useState } from "react";
+import axios from "axios";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { Base_url } from "../utils/constants";
+
+const EditProfile = (userData) => {
+  const user=userData?.user;
+  const [firstName, setFirstName] = useState(user.firstName);
+  const [lastName, setLastName] = useState(user.lastName);
+  const [about, setAbout] = useState(user.about);
+  const [age, setAge] = useState(user.age);
+  const [gender, setGender] = useState(user.gender);
+  const [headline, setHeadline] = useState(user.headline);
+  const [photoUrl, setPhotoUrl] = useState(user.photoUrl);
+  const [skills, setSkills] = useState(user.skills);
+  const [error, setError] = useState("");
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const saveProfile=async()=>{
+    try{
+      const res=await axios.patch(Base_url + "/profile/edit",
+        {firstName,lastName,about,age,headline,skills,photoUrl,gender}
+        ,{withCredentials:true}
+      );
+      dispatch(addUser(res?.data?.data))
+    }catch(err){
+      setError(err?.response?.data || "Something went wrong!");
+    }
+  }
+
+
+  return (
+    <div className="flex justify-center my-10">
+      <fieldset className="fieldset bg-base-200 border-base-300 rounded-box w-md border p-6">
+        {/* <legend className="fieldset-legend">Edit Profile</legend> */}
+        <h1 className="text-lg font-semibold text-success">Edit Profile</h1>
+
+        <div className="flex gap-4">
+          <div className="">
+        <label className="label text-sm">First Name :</label>
+        <input
+          type="text"
+          value={firstName}
+          name="firstName"
+          className="input"
+          placeholder="First Name"
+          onChange={(e) => setFirstName(e.target.value)}
+        /></div>
+
+         <div>
+        <label className="label text-sm">Last Name:</label>
+        <input
+          type="text"
+          value={lastName}
+          name="lastName"
+          className="input"
+          placeholder="Last Name"
+          onChange={(e)=> setLastName(e.target.value)}
+        /></div>
+        </div>
+
+       
+
+        <label className="label text-sm">About:</label>
+        <input
+          type="text"
+          value={about}
+          name="about"
+          className="input"
+          placeholder="About"
+          onChange={(e)=> setAbout(e.target.value)}
+        />
+
+        <label className="label text-sm">Age:</label>
+        <input
+          type="number"
+          value={age}
+          name="age"
+          className="input"
+          placeholder="age"
+          onChange={(e)=>setAge(e.target.value)}
+        />
+         <label className="label text-sm">Gender:</label>
+        <input
+          type="text"
+          value={gender}
+          name="gender"
+          className="input"
+          placeholder="gender"
+          onChange={(e)=>setGender(e.target.value)}
+        />
+
+         <label className="label text-sm">photoUrl:</label>
+        <input
+          type="text"
+          value={photoUrl}
+          name="photoUrl"
+          className="input"
+          placeholder="photoUrl"
+          onChange={(e)=>setPhotoUrl(e.target.value)}
+        />
+         <label className="label text-sm">Skills:</label>
+        <input
+          type="text"
+          value={skills}
+          name="skills"
+          className="input"
+          placeholder="skills"
+          onChange={(e)=>setSkills(e.target.value)}
+        />
+        <p className="text-sm text-red-500">{error}</p>
+
+        <button className="btn btn-success mt-4" onClick={saveProfile}>Save Profile</button>
+      </fieldset>
+    </div>
+  );
+};
+
+export default EditProfile;
