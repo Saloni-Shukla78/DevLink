@@ -38,7 +38,7 @@ const Login = () => {
           type="email"
           value={email}
           name="email"
-          className="input"
+          className="input focus:outline-none focus:ring-0"
           placeholder="Email"
           onChange={(e) => setEmail(e.target.value)}
         />
@@ -48,7 +48,7 @@ const Login = () => {
           type="password"
           value={password}
           name="password"
-          className="input"
+          className="input focus:outline-none focus:ring-0"
           placeholder="Password"
           onChange={(e) => setPassword(e.target.value)}
         />
