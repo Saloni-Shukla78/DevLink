@@ -25,9 +25,9 @@ userRouter.get("/user/request/received", userAuth, async (req, res) => {
       status: "interested",
     }).populate("fromUserId", User_Safe_Data);
 
-    if (connections.length === 0) {
+    if (receivedRequests.length === 0) {
       return res.status(404).json({
-        message: "No connections found",
+        message: "No connections found.",
       });
     }
     res.status(200).json({
@@ -36,7 +36,7 @@ userRouter.get("/user/request/received", userAuth, async (req, res) => {
     });
   } catch (err) {
     res.status(400).json({
-      message: "Errorv: " + err.message,
+      message: "Error: " + err.message,
     });
   }
 });
