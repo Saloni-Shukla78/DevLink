@@ -12,7 +12,7 @@ const EditProfile = (userData) => {
   const [lastName, setLastName] = useState(user.lastName);
   const [about, setAbout] = useState(user.about);
   const [age, setAge] = useState(user.age);
-  const [gender, setGender] = useState(user.gender);
+  const [gender, setGender] = useState(user.gender || " ");
   const [headline, setHeadline] = useState(user.headline);
   const [photoUrl, setPhotoUrl] = useState(user.photoUrl);
   const [skills, setSkills] = useState(user.skills);
@@ -21,8 +21,8 @@ const EditProfile = (userData) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const saveProfile = async () => {
-    try { 
-      const res = await axios.patch(  
+    try {
+      const res = await axios.patch(
         Base_url + "/profile/edit",
         { firstName, lastName, about, age, headline, skills, photoUrl, gender },
         { withCredentials: true },
@@ -75,16 +75,14 @@ const EditProfile = (userData) => {
           <div className="flex-1">
             <label className="label text-sm">Gender:</label>
             <select
-              className="select select-bordered w-full mt-2 
-  focus:outline-none focus:ring-0 focus:border-base-300 
-  focus-visible:outline-none focus-visible:ring-0 
-  appearance-none"
-              value={gender}
+              className="select select-bordered w-full mt-2 focus:outline-none focus:ring-0 focus:border-base-300 focus-visible:outline-none focus-visible:ring-0 appearance-none"
+              value={gender || " "}
+              name="gender"
               onChange={(e) => setGender(e.target.value)}
             >
               <option disabled={true}>Select the gender</option>
-              <option>male</option>
-              <option>female</option>
+              <option value="male">male</option>
+              <option value="female">female</option>
             </select>
           </div>
           <div className="flex-1">
@@ -142,15 +140,14 @@ const EditProfile = (userData) => {
         <button className="btn btn-success mt-4" onClick={saveProfile}>
           Save Profile
         </button>
-        
       </fieldset>
       {showToast && (
-          <div className="toast toast-top toast-center">
-            <div className="alert alert-success">
-              <span>Profile Updated successfully.</span>
-            </div>
+        <div className="toast toast-top toast-center">
+          <div className="alert alert-success">
+            <span>Profile Updated successfully.</span>
           </div>
-        )}
+        </div>
+      )}
     </div>
   );
 };

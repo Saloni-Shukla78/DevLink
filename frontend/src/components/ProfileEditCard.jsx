@@ -7,20 +7,21 @@ const ProfileEditCard = ({user}) => {
   <figure>
     <img
       src={photoUrl}
-      alt="profile photo" />
+      alt="profile photo"
+      className="w-full h-full object-cover" />
   </figure>
   <div className="card-body">
     <h2 className="card-title">
       {firstName +" " + lastName}
-      <div className="badge badge-secondary">{headline}</div>
+      {headline && <div className="badge badge-secondary">{headline}</div>}
     </h2>
-    <div className="card-actions">
-      <div className="badge badge-outline">{age}</div>
-      <div className="badge badge-outline">{gender}</div>
-    </div>
-    <p>{about}</p>
-    <div><span className='font-semibold'>Skills : </span><span>{skills.join(", ")}</span></div>
-    <div><span className='font-semibold'>Contact By : </span><span>{email}</span></div>
+    {(age !== undefined || gender) && (<div className="card-actions">
+      {age && <div className="badge badge-outline">{age}</div>}
+      {gender && <div className="badge badge-outline">{gender}</div>}
+    </div>)}
+    {about && <div>{about}</div>}
+    {skills && <div><span className='font-semibold'>Skills : </span>{skills.join(", ")}</div>}
+    <div><span className='font-semibold'>Contact By : </span>{email}</div>
     
   </div>
 </div>
