@@ -27,11 +27,11 @@ const Connections = () => {
   if (connections.length === 0) return <h1>No Connections Found.</h1>;
 
   return (
-    <div>
-      <ul className="list bg-base-100 rounded-box shadow-md my-7 mx-25">
-        <li className="p-4 pb-2 text-xl opacity-60 tracking-wide text-primary font-semibold">
+    <div className="mx-10 my-7 space-y-3">
+      <h2 className="p-4 pb-2 opacity-60 tracking-wide text-primary font-bold text-2xl text-center">
           Connections
-        </li>
+        </h2>
+      <ul className="list bg-base-100 rounded-box shadow-md my-7 mx-auto w-2/3">
 
         {connections.map((connection)=>{
           const {firstName ,photoUrl,headline}=connection;
@@ -49,23 +49,6 @@ const Connections = () => {
               {connection.headline}
             </div>
           </div>
-          <button className="btn btn-square btn-ghost">
-            <svg
-              className="size-[1.2em]"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-            >
-              <g
-                strokeLinejoin="round"
-                strokeLinecap="round"
-                strokeWidth="2"
-                fill="none"
-                stroke="currentColor"
-              >
-                <path d="M6 3L20 12 6 21 6 3z"></path>
-              </g>
-            </svg>
-          </button>
           <button className="btn btn-square btn-ghost">
             <svg
               className="size-[1.2em]"
