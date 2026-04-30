@@ -2,18 +2,35 @@ import axios from "axios";
 import React, { useEffect } from "react";
 import { Base_url } from "../utils/constants";
 import { useDispatch, useSelector } from "react-redux";
-import { addRequests } from "../utils/requestSlice";
+import { addRequests, removeRequest } from "../utils/requestSlice";
 
 const Requests = () => {
   const dispatch = useDispatch();
   const requests = useSelector((store) => store.requests);
-  console.log(requests);
+   if (!requests) return;
+  if(requests.length === 0){
+    return(
+      <h2 className="p-20 opacity-60 tracking-wide text-secondary font-semibold text-2xl text-center">No Request Found</h2>
+    )
+  };
+
+  const reviewRequests= async(status,_id)=>{
+    try{
+      await axios.post(Base_url + "/request/review/" + status + "/"+ _id,{},{
+        withCredentials:true,
+      });
+      dispatch(removeRequest(_id));
+
+    }catch(err){
+      console.log(err.message);
+    }
+  }
+  
   const fetchRequests = async () => {
     try {
       const res = await axios.get(Base_url + "/user/request/received", {
         withCredentials: true,
       });
-      // console.log(res);
       dispatch(addRequests(res?.data?.data));
     } catch (err) {
       console.log(err.message);
@@ -33,7 +50,7 @@ const Requests = () => {
           const { _id, fromUserId } = request;
           return (
             <div
-              key={request._id}
+              key={_id}
               className="card card-side bg-base-200 w-2/3 mx-auto shadow-md"
             >
               <figure className="p-4">
@@ -52,13 +69,14 @@ const Requests = () => {
                 </div>
                 {/* <p className="">{fromUserId.firstName} sends connection request.</p> */}
                 <div className="card-actions justify-end">
-                  <button className="btn btn-secondary">Accept</button>
-                  <button className="btn btn-primary">Rejected</button>
+                  <button className="btn btn-secondary" onClick={() => reviewRequests("accepted",fromUserId._id)}>Accept</button>
+                  <button className="btn btn-primary" onClick={() => reviewRequests("rejected",fromUserId._id)}>Rejected</button>
                 </div>
               </div>
             </div>
           );
-        })}
+        })
+      }
     </div>
   );
 };
