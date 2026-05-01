@@ -23,6 +23,7 @@ const Feed = () => {
   useEffect(() => {
     getFeed();
   }, []);
+  // console.log(feed)
   return (
     feed && (
       <div>
@@ -31,5 +32,4 @@ const Feed = () => {
     )
   );
 };
-
 export default Feed;
