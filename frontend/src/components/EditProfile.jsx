@@ -10,8 +10,8 @@ const EditProfile = (userData) => {
   const user = userData?.user;
   const [firstName, setFirstName] = useState(user.firstName);
   const [lastName, setLastName] = useState(user.lastName);
-  const [about, setAbout] = useState(user.about);
-  const [age, setAge] = useState(user.age);
+  const [about, setAbout] = useState(user.about || "");
+  const [age, setAge] = useState(user.age || "");
   const [gender, setGender] = useState(user.gender || " ");
   const [headline, setHeadline] = useState(user.headline);
   const [photoUrl, setPhotoUrl] = useState(user.photoUrl);
@@ -76,11 +76,11 @@ const EditProfile = (userData) => {
             <label className="label text-sm">Gender:</label>
             <select
               className="select select-bordered w-full mt-2 focus:outline-none focus:ring-0 focus:border-base-300 focus-visible:outline-none focus-visible:ring-0 appearance-none"
-              value={gender || " "}
+              value={gender}
               name="gender"
               onChange={(e) => setGender(e.target.value)}
             >
-              <option disabled={true}>Select the gender</option>
+              <option>Select the gender</option>
               <option value="male">male</option>
               <option value="female">female</option>
             </select>
