@@ -3,10 +3,10 @@ import React, { useEffect } from "react";
 import { Base_url } from "../utils/constants";
 import { useDispatch, useSelector } from "react-redux";
 import { addConnections } from "../utils/connectionsSlice";
+import { Link } from "react-router-dom";
 
 const Connections = () => {
   const connections = useSelector((store) => store.connections);
-  console.log(connections);
   const dispatch = useDispatch();
 
   const fetchConnections = async () => {
@@ -14,7 +14,7 @@ const Connections = () => {
       const res = await axios.get(Base_url + "/user/connections", {
         withCredentials: true,
       });
-      console.log(res?.data?.data);
+      
       dispatch(addConnections(res?.data?.data));
     } catch (err) {
       console.log(err.message);
@@ -38,9 +38,9 @@ const Connections = () => {
       <ul className="list bg-base-100 rounded-box shadow-md my-7 mx-auto w-2/3">
 
         {connections.map((connection)=>{
-          const {firstName ,photoUrl,headline}=connection;
+          const {_id,firstName ,photoUrl,headline}=connection;
 
-          return (<li className="list-row px-10 py-4 ">
+          return (<li key={_id} className="list-row px-10 py-4 ">
           <div>
             <img
               className="size-14 rounded"
@@ -53,9 +53,10 @@ const Connections = () => {
               {connection.headline}
             </div>
           </div>
-          <button className="btn btn-square btn-ghost">
+          <Link to={"/chat/"+ connection._id}>
+          <button className="btn btn-ghost flex flex-col items-center justify-center gap-1 h-16 w-16 rounded-xl">
             <svg
-              className="size-[1.2em]"
+              className="size-[1.4em]"
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
             >
@@ -66,10 +67,14 @@ const Connections = () => {
                 fill="none"
                 stroke="currentColor"
               >
-                <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
+                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+
+   
               </g>
             </svg>
-          </button>
+                 <span className="text-xs font-medium">Chat</span>
+
+          </button></Link>
         </li>
         );
         })}
