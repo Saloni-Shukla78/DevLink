@@ -7,10 +7,16 @@ const intializeSocket=(server)=>{
         }
     });
     io.on("connection",(socket)=>{
-        socket.on("joinChat",()=>{
+        socket.on("joinChat",({ userId, targetUserId})=>{
+            const roomId=[userId,targetUserId].sort().join("_");
+            // console.log(firstName + " joined room "+ roomId);
+            socket.join(roomId)
 
         });
-        socket.on("sendMessage",()=>{
+        socket.on("sendMessage",({userId,targetUserId,text})=>{
+            const roomId=[userId,targetUserId].sort().join("_");
+            // console.log(firstName + " :" + text);
+            io.to(roomId).emit("messageReceived",{text,userId})
 
         });
         socket.on("disconnect",()=>{
