@@ -1,5 +1,5 @@
 import React from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { useSelector } from "react-redux";
@@ -13,12 +13,13 @@ const Chat = () => {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [targetUser, setTargetUser] = useState(null);
+  const socketRef = useRef(null);
 
   const user = useSelector((store) => store.user);
   const userId = user?._id;
-  const firstName = user?.firstName;
-  const photoUrl = user?.photoUrl;
-  const socket = createSocketConnection();
+  // const firstName = user?.firstName;
+  // const photoUrl = user?.photoUrl;
+  // const socket = createSocketConnection();
 
   useEffect(() => {
     const fetchTargetUser = async () => {
@@ -36,30 +37,61 @@ const Chat = () => {
       }
     };
     fetchTargetUser();
+    fetchChatMessages();
   }, [targetUserId]);
 
+  const fetchChatMessages = async () => {
+    const chat = await axios.get(Base_url + "/chat/" + targetUserId, {
+      withCredentials: true,
+    });
+    console.log(chat.data.data.messages);
+    const chatMessages = chat?.data?.data?.messages.map((msg) => {
+      return {
+        senderId: msg?.senderId?._id,
+        firstName: msg?.senderId?.firstName,
+        lastname: msg?.senderId?.lastName,
+        text: msg?.text,
+        time: new Date(msg?.createdAt).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+      };
+    });
+    setMessages(chatMessages);
+  };
+
   useEffect(() => {
+    socketRef.current = createSocketConnection();
     if (!user) {
       return;
     }
-    socket.emit("joinChat", {
+    socketRef.current.emit("joinChat", {
       userId,
       targetUserId,
     });
 
-    socket.on("messageReceived", ({ text, userId }) => {
+    socketRef.current.on("messageReceived", ({ text, userId }) => {
       // console.log(firstName + " : "+ text);
-      setMessages((messages) => [...messages, { text, userId }]);
+      setMessages((messages) => [...messages, {
+        senderId: userId,
+        firstName,
+        text,
+        time: new Date().toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+      },
+    ]);
     });
 
     return () => {
-      socket.disconnect();
+      socketRef.current.disconnect();
     };
   }, [userId, targetUserId]);
 
   const sendMessage = () => {
     // const socket=createSocketConnection();
-    socket.emit("sendMessage", {
+    socketRef.current.emit("sendMessage", {
       userId,
       targetUserId,
       text: newMessage,
@@ -105,7 +137,7 @@ const Chat = () => {
           </div>
         ) : (
           messages.map((msg, index) => {
-            const isLoggedInUser = msg.userId == userId;
+            const isLoggedInUser = msg.senderId == userId;
             return (
               <div
                 key={index}
@@ -123,9 +155,14 @@ const Chat = () => {
                 </div>
                 <div className="chat-header">
                   {isLoggedInUser ? user?.firstName : targetUser?.firstName}
-                  {/* <time className="text-xs opacity-50">12:45</time> */}
                 </div>
-                <div className="chat-bubble">{msg.text}</div>
+                <div className="chat-bubble flex max-w-[75%]">
+                  <p className="wrap-break-word">{msg.text}</p>
+                  <time className="chat-footer text-[10px] self-end ml-3 opacity-60">
+                    {msg.time}
+                  </time>
+                </div>
+
                 {/* <div className="chat-footer opacity-50">Delivered</div> */}
               </div>
             );
